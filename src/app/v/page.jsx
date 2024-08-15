@@ -13,7 +13,7 @@ const ViewerComponent = () => {
   // Function to fetch initial data
   const fetchInitialData = async () => {
     const { data, error } = await supabase
-      .from('Data')
+      .from('Data2')
       .select('text')
       .eq('id', 1);
 

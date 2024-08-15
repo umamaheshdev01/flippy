@@ -53,7 +53,7 @@ const SpeechToTextComponent = () => {
 
   const updateSupabase = async (text) => {
     const { data, error } = await supabase
-      .from('Data')
+      .from('Data2')
       .update({ text: text })
       .eq('id', 1);
     
@@ -90,7 +90,7 @@ const SpeechToTextComponent = () => {
   
       // Update the AI response in Supabase under id 2
       const { error } = await supabase
-        .from('Data')
+        .from('Data2')
         .update({ text: aiResponse })
         .eq('id', 2);
   
@@ -113,12 +113,12 @@ const SpeechToTextComponent = () => {
   // Clear the text fields in Supabase for id 1 and id 2
   try {
     const { error: error1 } = await supabase
-      .from('Data')
+      .from('Data2')
       .update({ text: '' })
       .eq('id', 1);
 
     const { error: error2 } = await supabase
-      .from('Data')
+      .from('Data2')
       .update({ text: '' })
       .eq('id', 2);
 
