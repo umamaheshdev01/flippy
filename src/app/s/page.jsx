@@ -79,7 +79,7 @@ const SpeechToTextComponent = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            contents: [{ parts: [{ text: 'Please answer in just two lines ..... ' + inputText }] }],
+            contents: [{ parts: [{ text: 'Please answer in just one line ..... ' + inputText }] }],
           }),
         }
       );

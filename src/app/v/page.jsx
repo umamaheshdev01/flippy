@@ -28,7 +28,7 @@ const ViewerComponent = () => {
   const Data = supabase.channel('custom-all-channel')
   .on(
     'postgres_changes',
-    { event: '*', schema: 'public', table: 'Data' },
+    { event: '*', schema: 'public', table: 'Data2' },
     (payload) => {
       console.log('Change received!', payload)
       if(payload.new.id ==1){
