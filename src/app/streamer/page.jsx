@@ -10,7 +10,19 @@ const SpeechToTextComponent = () => {
   const [inputText, setInputText] = useState('');
   const [responseText, setResponseText] = useState('');
   const [isListening, setIsListening] = useState(false);
-  const recognition = new window.webkitSpeechRecognition();
+  const [recognition, setRecognition] = useState(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognitionInstance = new SpeechRecognition();
+      recognitionInstance.onresult = (event) => {
+        const speechResult = event.results[0][0].transcript;
+        setInputText(speechResult);
+      };
+      setRecognition(recognitionInstance);
+    }
+  }, []);
 
   // Function to start/stop speech recognition
   const toggleMic = () => {
@@ -23,15 +35,9 @@ const SpeechToTextComponent = () => {
     }
   };
 
-  // Handle speech recognition result
-  recognition.onresult = (event) => {
-    const speechResult = event.results[0][0].transcript;
-    setInputText(speechResult);
-  };
-
   // Function to update Supabase with new inputText value
   const updateSupabase = async (text) => {
-    const { data,error } = await supabase
+    const { data, error } = await supabase
       .from('Data')
       .update({ text: text })
       .eq('id', 1);
@@ -43,9 +49,9 @@ const SpeechToTextComponent = () => {
 
   // UseEffect to listen for changes in inputText
   useEffect(() => {
-    console.log(inputText)
+    if (inputText) {
       updateSupabase(inputText);
-
+    }
   }, [inputText]);
 
   // Handle submit to OpenAI API (left empty for now)
