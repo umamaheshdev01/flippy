@@ -32,10 +32,6 @@ const SpeechToTextComponent = () => {
             const transcript = event.results[i][0].transcript;
             if (event.results[i].isFinal) {
               finalTranscript += transcript;
-              if (isMobile) {
-                recognitionInstance.stop(); // Stop recognition on mobile after getting the first final result
-                break;
-              }
             }
           }
 
