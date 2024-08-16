@@ -20,7 +20,7 @@ const SpeechToTextComponent = () => {
       if (SpeechRecognition) {
         const recognitionInstance = new SpeechRecognition();
 
-        // Detect if the user is on a mobile device
+        // Detect if the user is on a mobile dev
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
         // Always keep continuous listening
