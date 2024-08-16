@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
@@ -19,11 +19,14 @@ const SpeechToTextComponent = () => {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRecognition) {
         const recognitionInstance = new SpeechRecognition();
-        recognitionInstance.continuous = true;
-        recognitionInstance.interimResults = true;
+
+        // Detect if the user is on a mobile device
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-        recognitionInstance.continuous = !isMobile;
+        // Always keep continuous listening
+        recognitionInstance.continuous = true;
+
+        // Handle interim results differently for mobile
         recognitionInstance.interimResults = !isMobile;
 
         recognitionInstance.onresult = (event) => {
