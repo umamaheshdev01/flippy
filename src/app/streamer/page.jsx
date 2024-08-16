@@ -16,43 +16,59 @@ const SpeechToTextComponent = () => {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognitionInstance = new SpeechRecognition();
+      if (SpeechRecognition) {
+        const recognitionInstance = new SpeechRecognition();
+        recognitionInstance.continuous = true;
+        recognitionInstance.interimResults = true;
 
-      recognitionInstance.continuous = true;
-      recognitionInstance.interimResults = true;
+        recognitionInstance.onresult = (event) => {
+          let finalTranscript = '';
 
-      recognitionInstance.onresult = (event) => {
-        let interimTranscript = '';
-        let finalTranscript = '';
-
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-            finalTranscript += transcript;
-          } else {
-            interimTranscript += transcript;
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              finalTranscript += transcript;
+            }
           }
-        }
 
-        setInputText(prevText => prevText + finalTranscript);
-      };
+          // Update the inputText with the final transcript
+          if (finalTranscript) {
+            setInputText(prevText => prevText + finalTranscript);
+          }
+        };
 
-      setRecognition(recognitionInstance);
+        recognitionInstance.onerror = (event) => {
+          console.error('Speech recognition error:', event.error);
+          setIsListening(false);
+        };
+
+        recognitionInstance.onend = () => {
+          setIsListening(false);
+        };
+
+        setRecognition(recognitionInstance);
+      } else {
+        console.warn('SpeechRecognition API is not supported in this browser.');
+      }
     }
   }, []);
 
   const toggleMic = () => {
-    if (isListening) {
-      recognition.stop();
-      setIsListening(false);
+    if (recognition) {
+      if (isListening) {
+        recognition.stop();
+      } else {
+        setInputText(''); // Clear the input text when starting to listen
+        recognition.start();
+      }
+      setIsListening(!isListening);
     } else {
-      recognition.start();
-      setIsListening(true);
+      console.warn('Speech recognition is not available.');
     }
   };
 
   const updateSupabase = async (text) => {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('Data')
       .update({ text: text })
       .eq('id', 1);
@@ -102,36 +118,33 @@ const SpeechToTextComponent = () => {
     } finally {
       setLoading(false);
     }
-
-      
   };
 
-  const handleClear =async () => {
+  const handleClear = async () => {
     setInputText('');
-  setResponseText('');
+    setResponseText('');
 
-  // Clear the text fields in Supabase for id 1 and id 2
-  try {
-    const { error: error1 } = await supabase
-      .from('Data')
-      .update({ text: '' })
-      .eq('id', 1);
+    try {
+      const { error: error1 } = await supabase
+        .from('Data')
+        .update({ text: '' })
+        .eq('id', 1);
 
-    const { error: error2 } = await supabase
-      .from('Data')
-      .update({ text: '' })
-      .eq('id', 2);
+      const { error: error2 } = await supabase
+        .from('Data')
+        .update({ text: '' })
+        .eq('id', 2);
 
-    if (error1) {
-      console.error('Error clearing text for id 1:', error1);
+      if (error1) {
+        console.error('Error clearing text for id 1:', error1);
+      }
+
+      if (error2) {
+        console.error('Error clearing text for id 2:', error2);
+      }
+    } catch (error) {
+      console.error("Error clearing text in Supabase:", error);
     }
-
-    if (error2) {
-      console.error('Error clearing text for id 2:', error2);
-    }
-  } catch (error) {
-    console.error("Error clearing text in Supabase:", error);
-  }
   };
 
   return (
