@@ -20,10 +20,10 @@ const SpeechToTextComponent = () => {
         const recognitionInstance = new SpeechRecognition();
 
         // Detect if the user is on a mobile device
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        // const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-        recognitionInstance.continuous = !isMobile; // Disable continuous recognition on mobile
-        recognitionInstance.interimResults = !isMobile; // Disable interim results on mobile
+        // recognitionInstance.continuous = !isMobile; // Disable continuous recognition on mobile
+        // recognitionInstance.interimResults = !isMobile; // Disable interim results on mobile
 
         recognitionInstance.onresult = (event) => {
           let finalTranscript = '';
