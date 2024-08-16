@@ -1,4 +1,5 @@
 'use client'
+
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
@@ -19,11 +20,10 @@ const SpeechToTextComponent = () => {
       if (SpeechRecognition) {
         const recognitionInstance = new SpeechRecognition();
 
-        // Detect if the user is on a mobile device
-        // const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-        // recognitionInstance.continuous = !isMobile; // Disable continuous recognition on mobile
-        // recognitionInstance.interimResults = !isMobile; // Disable interim results on mobile
+        recognitionInstance.continuous = !isMobile;
+        recognitionInstance.interimResults = !isMobile;
 
         recognitionInstance.onresult = (event) => {
           let finalTranscript = '';
@@ -35,9 +35,13 @@ const SpeechToTextComponent = () => {
             }
           }
 
-          if (finalTranscript) {
-            setInputText(prevText => prevText + finalTranscript);
-          }
+          setInputText((prevText) => {
+            // Check if the new transcript is already in the input text
+            if (prevText.endsWith(finalTranscript)) {
+              return prevText; // No need to append duplicate text
+            }
+            return prevText + finalTranscript;
+          });
         };
 
         recognitionInstance.onerror = (event) => {
@@ -81,13 +85,12 @@ const SpeechToTextComponent = () => {
     }
   };
 
-  // Debounce text updates to prevent too frequent updates
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (inputText) {
         updateSupabase(inputText);
       }
-    }, 500);  // Debounce time in milliseconds
+    }, 500);
 
     return () => clearTimeout(timeoutId);
   }, [inputText]);
@@ -96,7 +99,8 @@ const SpeechToTextComponent = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyDu59IuPqXGMA4KPGH9h8Zh7EbCqFZQXGo`,
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyDu59IuPqXGMA4KPGH9h8Zh7EbCqFZQXGo',
+
         {
           method: "POST",
           headers: {
@@ -112,7 +116,6 @@ const SpeechToTextComponent = () => {
       const aiResponse = data["candidates"][0]["content"]["parts"][0]["text"];
       setResponseText(aiResponse);
   
-      // Update the AI response in Supabase under id 2
       const { error } = await supabase
         .from('Data2')
         .update({ text: aiResponse })
@@ -179,7 +182,7 @@ const SpeechToTextComponent = () => {
         <button 
           onClick={handleSubmit} 
           className="p-4 rounded-full bg-blue-500 text-white shadow-lg transition-all duration-300 hover:bg-blue-600"
-          disabled={loading} // Disable the button while loading
+          disabled={loading}
         >
           {loading ? 'Loading...' : 'Submit'}
         </button>
