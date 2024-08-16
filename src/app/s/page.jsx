@@ -69,7 +69,7 @@ const SpeechToTextComponent = () => {
       if (isListening) {
         recognition.stop();
       } else {
-        setInputText(''); // Clear the input text when starting to listen
+        // setInputText(''); // Clear the input text when starting to listen
         recognition.start();
       }
       setIsListening(!isListening);

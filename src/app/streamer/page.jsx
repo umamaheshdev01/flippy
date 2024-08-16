@@ -31,10 +31,13 @@ const SpeechToTextComponent = () => {
             }
           }
 
-          // Update the inputText with the final transcript
-          if (finalTranscript) {
-            setInputText(prevText => prevText + finalTranscript);
-          }
+          setInputText((prevText) => {
+            // Check if the new transcript is already in the input text
+            if (prevText.endsWith(finalTranscript)) {
+              return prevText; // No need to append duplicate text
+            }
+            return prevText + finalTranscript;
+          });
         };
 
         recognitionInstance.onerror = (event) => {
