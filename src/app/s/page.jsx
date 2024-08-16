@@ -19,7 +19,8 @@ const SpeechToTextComponent = () => {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRecognition) {
         const recognitionInstance = new SpeechRecognition();
-
+        recognitionInstance.continuous = true;
+        recognitionInstance.interimResults = true;
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
         recognitionInstance.continuous = !isMobile;
@@ -79,7 +80,7 @@ const SpeechToTextComponent = () => {
       .from('Data2')
       .update({ text: text })
       .eq('id', 1);
-    
+
     if (error) {
       console.error('Error updating data:', error);
     }
@@ -111,16 +112,16 @@ const SpeechToTextComponent = () => {
           }),
         }
       );
-  
+
       const data = await response.json();
       const aiResponse = data["candidates"][0]["content"]["parts"][0]["text"];
       setResponseText(aiResponse);
-  
+
       const { error } = await supabase
         .from('Data2')
         .update({ text: aiResponse })
         .eq('id', 2);
-  
+
       if (error) {
         console.error('Error updating AI response:', error);
       }
@@ -162,45 +163,44 @@ const SpeechToTextComponent = () => {
     <div className="flex flex-col items-center p-4 bg-gradient-to-r from-blue-500 to-purple-600 min-h-screen">
       <h1 className="text-3xl font-bold text-white mb-4">Speech to AI Text</h1>
 
-      <textarea 
-        value={inputText} 
-        onChange={(e) => setInputText(e.target.value)} 
+      <textarea
+        value={inputText}
+        onChange={(e) => setInputText(e.target.value)}
         placeholder="Speak or type something..."
         className="w-3/4 p-4 rounded-lg mb-4 text-lg text-gray-700 shadow-lg focus:outline-none"
         rows="4"
       />
 
       <div className="flex space-x-4 mb-4">
-        <button 
-          onClick={toggleMic} 
-          className={`p-4 rounded-full text-white shadow-lg transition-all duration-300 ${
-            isListening ? 'bg-red-500' : 'bg-green-500'
-          }`}
+        <button
+          onClick={toggleMic}
+          className={`p-4 rounded-full text-white shadow-lg transition-all duration-300 ${isListening ? 'bg-red-500' : 'bg-green-500'
+            }`}
         >
           {isListening ? 'Stop Mic' : 'Start Mic'}
         </button>
-        <button 
-          onClick={handleSubmit} 
+        <button
+          onClick={handleSubmit}
           className="p-4 rounded-full bg-blue-500 text-white shadow-lg transition-all duration-300 hover:bg-blue-600"
           disabled={loading}
         >
           {loading ? 'Loading...' : 'Submit'}
         </button>
-        <button 
-          onClick={handleClear} 
+        <button
+          onClick={handleClear}
           className="p-4 rounded-full bg-yellow-500 text-white shadow-lg transition-all duration-300 hover:bg-yellow-600"
         >
           Clear
         </button>
       </div>
 
-      <textarea 
-        value={responseText} 
-        readOnly 
+      <textarea
+        value={responseText}
+        readOnly
         placeholder="AI response will appear here..."
         className="w-3/4 p-4 rounded-lg text-lg text-gray-700 shadow-lg focus:outline-none"
         rows="4"
-      />  
+      />
     </div>
   );
 };
