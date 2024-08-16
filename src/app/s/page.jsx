@@ -18,8 +18,12 @@ const SpeechToTextComponent = () => {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRecognition) {
         const recognitionInstance = new SpeechRecognition();
-        recognitionInstance.continuous = true;
-        recognitionInstance.interimResults = true;
+
+        // Detect if the user is on a mobile device
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        recognitionInstance.continuous = !isMobile; // Disable continuous recognition on mobile
+        recognitionInstance.interimResults = !isMobile; // Disable interim results on mobile
 
         recognitionInstance.onresult = (event) => {
           let finalTranscript = '';
@@ -28,10 +32,13 @@ const SpeechToTextComponent = () => {
             const transcript = event.results[i][0].transcript;
             if (event.results[i].isFinal) {
               finalTranscript += transcript;
+              if (isMobile) {
+                recognitionInstance.stop(); // Stop recognition on mobile after getting the first final result
+                break;
+              }
             }
           }
 
-          // Update the inputText with the final transcript
           if (finalTranscript) {
             setInputText(prevText => prevText + finalTranscript);
           }
@@ -78,10 +85,15 @@ const SpeechToTextComponent = () => {
     }
   };
 
+  // Debounce text updates to prevent too frequent updates
   useEffect(() => {
-    if (inputText) {
-      updateSupabase(inputText);
-    }
+    const timeoutId = setTimeout(() => {
+      if (inputText) {
+        updateSupabase(inputText);
+      }
+    }, 500);  // Debounce time in milliseconds
+
+    return () => clearTimeout(timeoutId);
   }, [inputText]);
 
   const handleSubmit = async () => {
